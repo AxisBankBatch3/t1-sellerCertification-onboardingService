@@ -38,5 +38,10 @@ class SellerController {
         return uploadFile.uploadDocument(file)
     }
 
+    @PostMapping("/addInvoice")
+    fun addSeller(@RequestBody seller:Seller):Seller?{
+        return onboardingServiceSingleUser.addSeller(seller)
+    }
+
 
 }
