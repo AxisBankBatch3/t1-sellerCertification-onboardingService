@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import javax.websocket.server.PathParam
 
+
+/**
+    put author information 
+*/
 @RestController
 @CrossOrigin("*", maxAge = 3600)
 class SellerController {
