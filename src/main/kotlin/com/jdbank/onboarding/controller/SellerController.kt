@@ -24,7 +24,7 @@ class SellerController {
 
     @GetMapping("/welcome")
     fun welcome():String{
-        return "Welcome to onboarding services of single user"
+        return "Welcome to onboarding services of Jbbank.com"
     }
 
     @GetMapping("/getAllSellers")
@@ -32,7 +32,7 @@ class SellerController {
         return onboardingServiceSingleUser.getAllSellers()
     }
 
-    @GetMapping("/getSellerByEmail/{id}")
+    @GetMapping("/getSellerByid/{id}")
     fun getSellerById(@PathVariable id:String):Any?{
         return onboardingServiceSingleUser.getSellerById(id)
     }
@@ -47,5 +47,9 @@ class SellerController {
         return onboardingServiceSingleUser.addSeller(seller)
     }
 
+    @GetMapping("/test")
+    fun getdata(): String.Companion? {
+       return null//uploadFile.createSellerProfile()
+    }
 
 }
