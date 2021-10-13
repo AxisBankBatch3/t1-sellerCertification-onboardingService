@@ -37,6 +37,7 @@ class SellerController {
         return onboardingServiceSingleUser.getSellerById(id)
     }
 
+
     @PostMapping("/uploadFile")
     fun uploadFile(@PathParam("file") file: MultipartFile):String?{
         return uploadFile.uploadDocument(file)
