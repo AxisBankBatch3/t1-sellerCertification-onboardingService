@@ -4,7 +4,10 @@ import com.jdbank.onboarding.entity.Seller
 import com.jdbank.onboarding.repository.SellerRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-
+/*
+@author:Yaswanth
+contains all functions for CRUD operations in Seller resource
+ */
 @Service
 class OnboardingServiceSingleUserImpl:OnboardingServiceSingleUser {
 
@@ -22,10 +25,21 @@ class OnboardingServiceSingleUserImpl:OnboardingServiceSingleUser {
         }else
             "Entry with $id not found"
     }
+    /*
+    @author: Yaswanth
+    @params: None
+    @returns : list of sellers
+     */
 
     override fun getAllSellers(): MutableList<Seller?>? {
         return sellerRepository.findAll()
     }
+
+    /*
+    @author: Yashwanth
+    @param: id of seller to get
+    @returns: Status message
+     */
 
     override fun getSellerById(id: String): Any? {
         return if (sellerRepository.existsById(id)){
@@ -33,6 +47,12 @@ class OnboardingServiceSingleUserImpl:OnboardingServiceSingleUser {
         }else
             "Seller with $id not found"
     }
+
+    /*
+    @author: Yaswanth
+    @params: id : id of seller to updatta, seller: Upated info
+    @returns : Status of the operation
+     */
 
     override fun updateSellerById(id: String, seller:Seller): Any? {
         return if (sellerRepository.existsById(id)) {

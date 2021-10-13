@@ -47,9 +47,6 @@ class SellerController {
         return onboardingServiceSingleUser.addSeller(seller)
     }
 
-    @GetMapping("/test")
-    fun getdata(): String.Companion? {
-       return null//uploadFile.createSellerProfile()
-    }
+
 
 }

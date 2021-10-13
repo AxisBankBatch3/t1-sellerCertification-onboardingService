@@ -14,15 +14,20 @@ import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
-import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
-import javax.annotation.PostConstruct
 import javax.transaction.Transactional
 import kotlin.random.Random
+
+/*
+Upload file implemenation
+1-> Gets xcel file as parameter
+2-> Checks if the file is valid or not
+3-> if good send the file to good data folder in s3, else send to bad data folder in s3
+4-> Data in good files stored in Seller DB and Profile created in Security DB
+ @author:Cyril Joseph
+ */
 @Service
 class UploadFileImpl:UploadFile {
 
@@ -36,7 +41,16 @@ class UploadFileImpl:UploadFile {
 
     private lateinit var workBook: Workbook
     private var extensions = listOf<String>("xlsx", "csv")
-
+    private var securityServicUrl =
+       // "http://sellercertificationsecurity-env.eba-remvumx4.ap-south-1.elasticbeanstalk.com/api/auth/signupbulk"
+        "http://localhost:5000/api/auth/signupbulk"
+    /*
+    @author:Cyril Joseph
+    @parameter: file Multipart file containing seller information
+    @checks: if file is having required extension
+    @function: seperates good data and bad data folder -> adds good data to Seller and Security DB
+    @returns: status of file
+    */
     @Transactional
     override fun uploadDocument(file: MultipartFile): String {
         val document: File = convertMultipartFileToFile(file)
@@ -59,7 +73,6 @@ class UploadFileImpl:UploadFile {
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
-                    println("--------Workbook has ${workBook.numberOfSheets} sheets -------------")
 
                     //Get sheet at 0 index
                     var sheet: Sheet = workBook.getSheetAt(0)
@@ -112,6 +125,14 @@ class UploadFileImpl:UploadFile {
         // Rest template->  security service
     }
 
+
+
+    /*
+    @author: Cyril joseph
+    @parameters: excelData->exceldata, noOfColumns
+    @scope: helper function for uploadDocuments()
+    @returns : Excel row data to List of seller objects
+    * **/
     private fun createList(excelData: MutableList<String>, noOfColumns: Int): MutableList<Seller> {
         var sellerList: MutableList<Seller> = mutableListOf()
         var i: Int = noOfColumns
@@ -132,6 +153,12 @@ class UploadFileImpl:UploadFile {
         return sellerList
     }
 
+    /*
+    * @author: Cyril Joseph
+    * @params : file
+    * @returns : Multipart file converted
+    * */
+
     private fun convertMultipartFileToFile(file: MultipartFile): File {
         var convertedFile: File = File(file.originalFilename)
         try {
@@ -143,8 +170,14 @@ class UploadFileImpl:UploadFile {
         return convertedFile;
     }
 
+    /*
+    @params : List containing seller objects
+    @scope : called by function uploadDocuments() for creating seller profile
+    @body: converts seller object into User object for
+     automated profile creation and makes restTemplate call to security service
+     */
     override fun createSellerProfile(sellerList:MutableList<Seller>) { //sellerList:MutableList<Seller>
-        // MutableList<Seller> -> MutableList<User>
+        // convert MutableList<Seller> -> MutableList<User>
         val userList = sellerList.map {
                 seller -> User( id = "L1-"+generateId(),
                                 fullName= seller.name,
@@ -155,18 +188,23 @@ class UploadFileImpl:UploadFile {
                                 isAdmin=false
                 )
         }
-        println(userList)
 
+        // Make the rest template call
         val restTemplate:RestTemplate = RestTemplate()
         val headers:HttpHeaders = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         val entity:HttpEntity<List<User>> = HttpEntity<List<User>>(userList, headers)
-        val result = restTemplate.exchange("http://localhost:5000/api/auth/signupbulk", HttpMethod.POST,
+        val result = restTemplate.exchange(securityServicUrl, HttpMethod.POST,
                                                 entity, String.javaClass)
 
 
     }
-
+    /*
+    @author:Cyril Joseph
+    @params:None
+    @returns:Random num generated with prefix 0's
+    Generate random Id for seller
+     */
     fun generateId():String{
         val num = Random.nextInt(1000).toString()
         return if(num.length==1)
