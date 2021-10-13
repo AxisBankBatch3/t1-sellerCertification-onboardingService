@@ -26,7 +26,7 @@ data class Seller(
     @NotBlank(message = "address is mandatory")
     var address:String,
 
-    @Min(18)
+    @Min(19)
     @Max(60)
     var age:Int,
 
